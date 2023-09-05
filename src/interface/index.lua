@@ -125,7 +125,7 @@ function handleIndexScreen()
         end
     end
 
-    function handleKeyPressUpDownArrow(up)
+    function handleScrollSelection(up)
         if up then
             if highlightedLine > 1 then
                 highlightedLine = highlightedLine - 1
@@ -152,10 +152,14 @@ function handleIndexScreen()
         elseif key == keys.enter then
             handleKeyPressEnter()
         elseif key == keys.up or key == keys.down then
-            handleKeyPressUpDownArrow(key == keys.up)
+            handleScrollSelection(key == keys.up)
         elseif key == keys.leftCtrl and config.debug then
             handleKeyPressLeftCtrl()
         end
+    end
+
+    function handleMouseScroll(direction)
+        handleScrollSelection(direction == -1)
     end
 
     startItemInserter()
@@ -171,6 +175,8 @@ function handleIndexScreen()
                     handleTyping(eventData[2])
                 elseif event == "key" then
                     handleKeyPress(eventData[2])
+                elseif event == "mouse_scroll" then
+                    handleMouseScroll(eventData[2])
                 elseif event == "turtle_inventory" then
                     handleTurtleInventory()
                 elseif event == "term_resize" then
