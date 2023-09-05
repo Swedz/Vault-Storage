@@ -1,4 +1,4 @@
-config = require("vault_config")
+config = require("config")
 
 function debug(message)
     local chatBox = peripheral.find("chatBox")

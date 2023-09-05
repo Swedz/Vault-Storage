@@ -1,5 +1,5 @@
 return {
-    debug = true,
+    debug = false,
     -- All peripherals of this type should be used as inventories. Use nil to use none
     inventory_peripheral = "minecraft:barrel",
     -- Array of peripheral names that should be added to the peripheral list
@@ -11,7 +11,7 @@ return {
         client = 68
     },
     colors = {
-        searchBox = {
+        indexSearchBox = {
             background = colors.white,
             text = colors.black
         },
@@ -26,6 +26,14 @@ return {
         indexContent = {
             background = colors.gray,
             text = colors.white
+        },
+        requestItems = {
+            background = colors.gray,
+            text = colors.white
+        },
+        requestItemsAmount = {
+            background = colors.white,
+            text = colors.black
         }
     }
 }

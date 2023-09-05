@@ -1,4 +1,4 @@
-require("vault_core")
+require("core")
 
 function hashItem(item)
     if item == nil then return nil end
