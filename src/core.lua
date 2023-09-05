@@ -37,20 +37,16 @@ function formatCount(count)
     end
 end
 
-function findPeripheralsPattern(pattern)
-    local peripherals = {}
-    for _, peripheralName in ipairs(peripheral.getNames()) do
-        if peripheralName:match(pattern) then
-            peripherals[#peripherals+1] = peripheral.wrap(peripheralName)
-        end
-    end
-    return peripherals
+function findInventoryPeripheralsPattern(pattern)
+    return peripheral.find("inventory", function(peripheralName)
+        return peripheralName:match(pattern)
+    end)
 end
 
-function findPeripheralsPatterns(patterns)
+function findInventoryPeripheralsPatterns(patterns)
     local peripherals = {}
     for _, pattern in pairs(patterns) do
-        for _, p in ipairs(findPeripheralsPattern(pattern)) do
+        for _, p in ipairs(findInventoryPeripheralsPattern(pattern)) do
             table.insert(peripherals, p)
         end
     end

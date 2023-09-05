@@ -11,7 +11,7 @@ function isItemInserter(peripheralName)
 end
 
 function setupItemInserters()
-    local inserters = findPeripheralsPatterns(config.item_inserters)
+    local inserters = findInventoryPeripheralsPatterns(config.item_inserters)
     if #inserters > 0 then
         itemInserters = {}
         for _, itemInserter in pairs(inserters) do
