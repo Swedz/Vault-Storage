@@ -6,12 +6,6 @@ return {
     additional_inventory_peripherals = {
         "sophisticatedstorage:.*"
     },
-    modem_port = {
-        -- The port the server will listen on, in other words, the port the client will send to to make requests
-        server = 69,
-        -- The port the client will listen on, in other words, the port the server will send to to respond to requests
-        client = 68
-    },
     colors = {
         indexSearchBox = {
             background = colors.white,
