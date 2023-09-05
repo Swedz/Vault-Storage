@@ -1,0 +1,7 @@
+shell.execute("delete", "vault_config")
+shell.execute("delete", "vault_items")
+shell.execute("delete", "vault_interface")
+shell.execute("pastebin", "get", "9t3XQ8D9", "vault_config")
+shell.execute("pastebin", "get", "1SY1W6YK", "vault_items")
+shell.execute("pastebin", "get", "h7QXgL7A", "vault_interface")
+shell.execute("vault_interface")
