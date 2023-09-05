@@ -38,9 +38,9 @@ function formatCount(count)
 end
 
 function findInventoryPeripheralsPattern(pattern)
-    return peripheral.find("inventory", function(peripheralName)
+    return { peripheral.find("inventory", function(peripheralName)
         return peripheralName:match(pattern)
-    end)
+    end) }
 end
 
 function findInventoryPeripheralsPatterns(patterns)
