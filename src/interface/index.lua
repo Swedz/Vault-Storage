@@ -62,11 +62,24 @@ function drawIndexScreen()
         windowIndexSelectedLine.setBackgroundColor(config.colors.indexHighlightedEntry.background)
     end
 
+    local entriesDisplayed = 0
+    for _, _ in ipairs(matchingItems) do
+        entriesDisplayed = entriesDisplayed + 1
+        if entriesDisplayed > maxEntryLines then
+            entriesDisplayed = entriesDisplayed - 1
+            break
+        end
+    end
+    totalEntriesDisplayed = entriesDisplayed
+    if highlightedLine > totalEntriesDisplayed then
+        highlightedLine = totalEntriesDisplayed
+        windowIndexSelectedLine.reposition(1, highlightedLine)
+    end
+
     local line = 0
     for _, item in ipairs(matchingItems) do
         line = line + 1
         if line > maxEntryLines then
-            line = line - 1
             break
         end
 
@@ -80,7 +93,6 @@ function drawIndexScreen()
         window.setCursorPos(1, localLine)
         writeTableLine(window, { item.displayName, formatCount(item.count) }, columnWidths)
     end
-    totalEntriesDisplayed = line
 
     -- Used for writing debug information on the bottom of the screen
     --windowIndexBottom.setCursorPos(1, termHeight - 4)
