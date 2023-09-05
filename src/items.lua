@@ -190,7 +190,13 @@ function Cache:requestItems(targetInventory, item, amount)
 end
 
 function Cache:depositItems(fromInventory, slot)
-    local itemStack = turtle.getItemDetail(slot)
+    local itemStack
+    if fromInventory == computerName then
+        itemStack = turtle.getItemDetail(slot)
+    else
+        itemStack = peripheral.wrap(fromInventory).getItemDetail(slot)
+    end
+
     for _, inventory in pairs(self.inventories) do
         local emptySlots = {}
         for s = 1, inventory.size() do emptySlots[s] = true end
