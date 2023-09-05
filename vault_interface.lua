@@ -164,6 +164,7 @@ function handleTurtleInventory()
             protected_slots[slot] = false
         elseif not protected and item then
             cache:depositItems(computerName, slot)
+            drawIndexScreen()
             sleep(0.05)
         end
     end
