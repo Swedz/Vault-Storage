@@ -36,3 +36,13 @@ function formatCount(count)
         return tostring(count)
     end
 end
+
+function findPeripheralsPattern(pattern)
+    local peripherals = {}
+    for _, peripheralName in ipairs(peripheral.getNames()) do
+        if peripheralName:match(pattern) then
+            peripherals[#peripherals+1] = peripheral.wrap(peripheralName)
+        end
+    end
+    return peripherals
+end

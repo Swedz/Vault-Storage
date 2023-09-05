@@ -30,7 +30,9 @@ function Cache:locateInventoryPeripherals()
         peripherals = { peripheral.find(config.inventory_peripheral) }
     end
     for _, inventory in pairs(config.additional_inventory_peripherals) do
-        table.insert(peripherals, inventory)
+        for _, p in ipairs(findPeripheralsPattern(inventory)) do
+            table.insert(peripherals, p)
+        end
     end
     local inventories = {}
     for _, inventory in pairs(peripherals) do
