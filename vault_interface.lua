@@ -116,7 +116,7 @@ function handleKeyPress(key)
         handleKeyPressBackspace()
     elseif key == keys.enter then
         handleKeyPressEnter()
-    elseif key == keys.leftCtrl then
+    elseif key == keys.leftCtrl and config.debug then
         handleKeyPressLeftCtrl()
     end
 end
@@ -128,6 +128,7 @@ function handleTurtleInventory()
             protected_slots[slot] = false
         elseif not protected and item then
             cache:depositItems(computerName, slot)
+            sleep(0.05)
         end
     end
 end
