@@ -103,17 +103,21 @@ function handleKeyPressEnter()
     end
 end
 
+function handleKeyPressLeftCtrl()
+    local matchingItems = cache:getItems(true, searchBox)
+    local selectedItem = matchingItems[next(matchingItems)]
+    if selectedItem ~= nil then
+        debug(textutils.serialize(selectedItem))
+    end
+end
+
 function handleKeyPress(key)
     if key == keys.backspace then
         handleKeyPressBackspace()
     elseif key == keys.enter then
         handleKeyPressEnter()
-    elseif key == keys.control then
-        local matchingItems = cache:getItems(true, searchBox)
-        local selectedItem = matchingItems[next(matchingItems)]
-        if selectedItem ~= nil then
-            debug(textutils.serialize(selectedItem))
-        end
+    elseif key == keys.leftCtrl then
+        handleKeyPressLeftCtrl()
     end
 end
 
