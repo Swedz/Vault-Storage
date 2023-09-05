@@ -15,6 +15,7 @@ end
 
 Cache = {
     inventories = {},
+    containers = {},
     items = {}
 }
 
@@ -34,11 +35,22 @@ function Cache:locateInventoryPeripherals()
             table.insert(peripherals, p)
         end
     end
+
     local inventories = {}
+    local containers = {}
     for _, inventory in pairs(peripherals) do
-        inventories[peripheral.getName(inventory)] = inventory
+        local inventoryName = peripheral.getName(inventory)
+
+        inventories[inventoryName] = inventory
+
+        local container = {}
+        for slot, itemStack in pairs(inventory.list()) do
+            container[slot] = itemStack
+        end
+        containers[inventoryName] = container
     end
     self.inventories = inventories
+    self.containers = containers
 end
 
 function Cache:insertItem(inventory, itemStack, slot, count)
@@ -53,7 +65,7 @@ function Cache:insertItem(inventory, itemStack, slot, count)
         item = {
             hash = itemHash,
             count = count,
-            detail = inventory.getItemDetail(slot),
+            displayName = inventory.getItemDetail(slot).displayName,
             sources = {
                 [peripheral.getName(inventory)] = { [slot] = true }
             }
@@ -102,7 +114,7 @@ function Cache:getItems(sort, filter)
     local result = {}
     local index = 1
     for _, item in pairs(self.items) do
-        if filter == nil or filter == "" or string.find(string.lower(item.detail.displayName), filter) and item ~= nil then
+        if filter == nil or filter == "" or string.find(string.lower(item.displayName), filter) and item ~= nil then
             result[index] = item
             index = index + 1
         end
@@ -110,7 +122,7 @@ function Cache:getItems(sort, filter)
     if sort then
         table.sort(result, function(a, b)
             if a.count == b.count then
-                return a.detail.displayName >= b.detail.displayName
+                return a.displayName >= b.displayName
             else
                 return a.count >= b.count
             end
@@ -127,15 +139,17 @@ function Cache:requestItems(targetInventory, item, amount)
 
         for slot, _ in pairs(slots) do
             -- Push the item from the inventory into the target inventory
-            local itemDetail = inventory.getItemDetail(slot)
+            local itemDetail = self.containers[sourceName][slot]
             local amountPushed = inventory.pushItems(targetInventory, slot, amount)
 
             -- Adjust our counts
             amount = amount - amountPushed
             item.count = item.count - amountPushed
+            self.containers[sourceName][slot].count = itemDetail.count - amountPushed
 
             -- Mark this slot for removal
             if itemDetail.count <= amountPushed then
+                self.containers[sourceName][slot] = nil
                 table.insert(forgetSlots, slot)
             end
 
@@ -179,14 +193,28 @@ function Cache:depositItems(fromInventory, slot)
     local itemStack = turtle.getItemDetail(slot)
     for _, inventory in pairs(self.inventories) do
         local emptySlots = {}
-        for s = 1, inventory.size() do emptySlots[s] = true end
-        for s, _ in pairs(inventory.list()) do emptySlots[s] = false end
+        local emptySlotCount = 0
+        for s = 1, inventory.size() do
+            emptySlots[s] = true
+            emptySlotCount = emptySlotCount + 1
+        end
+        for s, _ in pairs(inventory.list()) do
+            emptySlots[s] = false
+            emptySlotCount = emptySlotCount - 1
+        end
 
-        local amountInserted = inventory.pullItems(fromInventory, slot)
-        if amountInserted > 0 then
-            local filledSlot = -1
-            for s, _ in pairs(inventory.list()) do if emptySlots[s] then filledSlot = s break end end
-            self:insertItem(inventory, itemStack, filledSlot, amountInserted)
+        if emptySlotCount > 0 then
+            local amountInserted = inventory.pullItems(fromInventory, slot)
+            if amountInserted > 0 then
+                local filledSlot = -1
+                for s, i in pairs(inventory.list()) do
+                    self.containers[peripheral.getName(inventory)][s] = i
+                    if emptySlots[s] and filledSlot == -1 then
+                        filledSlot = s
+                    end
+                end
+                self:insertItem(inventory, itemStack, filledSlot, amountInserted)
+            end
         end
     end
 end

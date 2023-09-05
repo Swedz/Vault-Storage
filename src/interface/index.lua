@@ -70,7 +70,7 @@ function drawIndexScreen()
         end
 
         window.setCursorPos(1, localLine)
-        writeTableLine(window, { item.detail.displayName, formatCount(item.count) }, columnWidths)
+        writeTableLine(window, { item.displayName, formatCount(item.count) }, columnWidths)
     end
     totalEntriesDisplayed = line
 
