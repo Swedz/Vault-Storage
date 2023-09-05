@@ -88,6 +88,8 @@ function handleRequestScreen()
             handleTyping(eventData[2])
         elseif event == "key" then
             handleKeyPress(eventData[2])
+        elseif event == "turtle_inventory" then
+            handleTurtleInventory()
         elseif event == "term_resize" then
             updateTermSize()
             updateRequestTermSize()
