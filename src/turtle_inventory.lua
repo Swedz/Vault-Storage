@@ -13,14 +13,19 @@ end
 turtleProtectSlots()
 
 function handleTurtleInventory()
+    local queue = {}
+
     for slot, protected in pairs(protected_slots) do
         local item = turtle.getItemDetail(slot)
         if protected and not item then
             protected_slots[slot] = false
         elseif not protected and item then
-            cache:depositItems(computerName, slot)
-            drawIndexScreen()
-            sleep(0.05)
+            table.insert(queue, function()
+                cache:depositItems(computerName, slot)
+                drawIndexScreen()
+            end)
         end
     end
+
+    processQueue(queue)
 end

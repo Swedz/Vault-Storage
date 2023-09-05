@@ -46,3 +46,26 @@ function findPeripheralsPattern(pattern)
     end
     return peripherals
 end
+
+partitionSize = 128
+function processQueue(queue)
+    local data_functions = {}
+
+    local size = #queue
+    local partitions = math.ceil(size / partitionSize)
+    for i = 1, size do
+        local current_part = math.ceil(i / partitionSize)
+        local partition_location = (i - 1) % partitionSize + 1
+
+        if not data_functions[current_part] then
+            data_functions[current_part] = {}
+        end
+
+        data_functions[current_part][partition_location] = queue[i]
+    end
+
+    for i = 1, partitions do
+        local partition = data_functions[i]
+        parallel.waitForAll(table.unpack(partition,1,#partition))
+    end
+end

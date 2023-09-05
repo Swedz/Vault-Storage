@@ -56,29 +56,29 @@ end
 function Cache:insertItem(inventory, itemStack, slot, count)
     if count == nil then count = itemStack.count end
 
+    local inventoryName = peripheral.getName(inventory)
+
     local itemHash = hashItem(itemStack)
     local item = self.items[itemHash]
     if item == nil then
         if slot <= 0 then
             error("Tried to insert new and fresh item with evaluated invalid slot of " .. slot)
         end
-        item = {
+        self.items[itemHash] = {
             hash = itemHash,
             count = count,
             displayName = inventory.getItemDetail(slot).displayName,
             sources = {
-                [peripheral.getName(inventory)] = { [slot] = true }
+                [inventoryName] = { [slot] = true }
             }
         }
-        self.items[itemHash] = item
     else
         item.count = item.count + count
-
         if slot > 0 then
-            local sources = item.sources[peripheral.getName(inventory)]
+            local sources = item.sources[inventoryName]
             if sources == nil then sources = {} end
             sources[slot] = true
-            item.sources[peripheral.getName(inventory)] = sources
+            item.sources[inventoryName] = sources
         end
     end
 end
@@ -193,18 +193,13 @@ function Cache:depositItems(fromInventory, slot)
     local itemStack = turtle.getItemDetail(slot)
     for _, inventory in pairs(self.inventories) do
         local emptySlots = {}
-        local emptySlotCount = 0
-        for s = 1, inventory.size() do
-            emptySlots[s] = true
-            emptySlotCount = emptySlotCount + 1
-        end
-        for s, _ in pairs(inventory.list()) do
-            emptySlots[s] = false
-            emptySlotCount = emptySlotCount - 1
-        end
+        for s = 1, inventory.size() do emptySlots[s] = true end
+        for s, _ in pairs(self.containers[peripheral.getName(inventory)]) do emptySlots[s] = false end
+        local firstEmptySlot = 0
+        for s, v in pairs(emptySlots) do if v then firstEmptySlot = s break end end
 
-        if emptySlotCount > 0 then
-            local amountInserted = inventory.pullItems(fromInventory, slot)
+        if firstEmptySlot > 0 then
+            local amountInserted = inventory.pullItems(fromInventory, slot, inventory.getItemLimit(firstEmptySlot), firstEmptySlot)
             if amountInserted > 0 then
                 local filledSlot = -1
                 for s, i in pairs(inventory.list()) do
