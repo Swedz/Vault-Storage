@@ -108,6 +108,12 @@ function handleKeyPress(key)
         handleKeyPressBackspace()
     elseif key == keys.enter then
         handleKeyPressEnter()
+    elseif key == keys.control then
+        local matchingItems = cache:getItems(true, searchBox)
+        local selectedItem = matchingItems[next(matchingItems)]
+        if selectedItem ~= nil then
+            debug(textutils.serialize(selectedItem))
+        end
     end
 end
 
