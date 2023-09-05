@@ -117,9 +117,7 @@ function handleTurtleInventory()
         if protected and not item then
             protected_slots[slot] = false
         elseif not protected and item then
-            turtle.select(slot)
-            turtle.drop()
-            turtle.select(1)
+            cache:depositItems(computerName, slot)
         end
     end
 end

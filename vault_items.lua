@@ -39,29 +39,40 @@ function Cache:locateInventoryPeripherals()
     self.inventories = inventories
 end
 
+function Cache:insertItem(inventory, itemStack, slot, count)
+    if count == nil then count = itemStack.count end
+
+    local itemHash = hashItem(itemStack)
+    local item = self.items[itemHash]
+    if item == nil then
+        if slot <= 0 then
+            error("Tried to insert new and fresh item with evaluated invalid slot of " .. slot)
+        end
+        item = {
+            hash = itemHash,
+            count = count,
+            detail = inventory.getItemDetail(slot),
+            sources = {
+                [peripheral.getName(inventory)] = { [slot] = true }
+            }
+        }
+        self.items[itemHash] = item
+    else
+        item.count = item.count + count
+
+        if slot > 0 then
+            local sources = item.sources[peripheral.getName(inventory)]
+            if sources == nil then sources = {} end
+            sources[slot] = true
+            item.sources[peripheral.getName(inventory)] = sources
+        end
+    end
+end
+
 function Cache:readAll(inventories)
     for _, inventory in pairs(inventories) do
         for slot, itemStack in pairs(inventory.list()) do
-            local itemHash = hashItem(itemStack)
-            local item = self.items[itemHash]
-            if item == nil then
-                item = {
-                    hash = itemHash,
-                    count = itemStack.count,
-                    detail = inventory.getItemDetail(slot),
-                    sources = {
-                        [peripheral.getName(inventory)] = { [slot] = true }
-                    }
-                }
-                self.items[itemHash] = item
-            else
-                item.count = item.count + itemStack.count
-
-                local sources = item.sources[peripheral.getName(inventory)]
-                if sources == nil then sources = {} end
-                sources[slot] = true
-                item.sources[peripheral.getName(inventory)] = sources
-            end
+            self:insertItem(inventory, itemStack, slot, itemStack.count)
         end
     end
 end
@@ -159,6 +170,22 @@ function Cache:requestItems(targetInventory, item, amount)
     for _, v in pairs(item.sources) do if v ~= nil then sourceCount = sourceCount + 1 end end
     if sourceCount == 0 then
         self.items[item.hash] = nil
+    end
+end
+
+function Cache:depositItems(fromInventory, slot)
+    local itemStack = turtle.getItemDetail(slot)
+    for _, inventory in pairs(self.inventories) do
+        local emptySlots = {}
+        for s = 1, inventory.size() do emptySlots[s] = true end
+        for s, _ in pairs(inventory.list()) do emptySlots[s] = false end
+
+        local amountInserted = inventory.pullItems(fromInventory, slot)
+        if amountInserted > 0 then
+            local filledSlot = -1
+            for s, _ in pairs(inventory.list()) do if emptySlots[s] then filledSlot = s break end end
+            self:insertItem(inventory, itemStack, filledSlot, amountInserted)
+        end
     end
 end
 
