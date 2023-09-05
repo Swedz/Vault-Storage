@@ -85,7 +85,6 @@ function Cache:insertItem(inventory, itemStack, slot, count)
                 [inventoryName] = { [slot] = true }
             }
         }
-        debug("Inserted new item " .. itemHash .. " at inventory " .. inventoryName)
     else
         item.count = item.count + count
         if slot > 0 then
