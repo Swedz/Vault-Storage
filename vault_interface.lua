@@ -113,7 +113,7 @@ end
 
 function handleTurtleInventory()
     for slot, protected in pairs(protected_slots) do
-        if not protected then
+        if not protected and turtle.getItemDetail(slot) then
             turtle.select(slot)
             turtle.drop()
             turtle.select(1)
