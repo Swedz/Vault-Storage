@@ -6,11 +6,17 @@ require("vault_core")
 computerName = peripheral.find("modem").getNameLocal()
 cache = require("vault_items"):fullSetup()
 
-internal_inventory_cache = {}
-internal_inventory = peripheral.wrap(computerName)
-for slot, item in pairs(internal_inventory.list()) do
-    debug(("%d: %s"):format(slot, item.name))
+protected_slots = {}
+function turtleProtectSlots()
+    for slot = 1, 16 do
+        if turtle.getItemDetail(slot) then
+            protected_slots[slot] = true
+        else
+            protected_slots[slot] = false
+        end
+    end
 end
+turtleProtectSlots()
 
 termWidth, termHeight = term.getSize()
 searchBox = ""
@@ -93,6 +99,7 @@ function handleKeyPressEnter()
     local selectedItem = matchingItems[next(matchingItems)]
     if selectedItem ~= nil then
         cache:requestItems(computerName, selectedItem, 4)
+        turtleProtectSlots()
     end
 end
 
@@ -104,6 +111,16 @@ function handleKeyPress(key)
     end
 end
 
+function handleTurtleInventory()
+    for slot, protected in pairs(protected_slots) do
+        if not protected then
+            turtle.select(slot)
+            turtle.drop()
+            turtle.select(1)
+        end
+    end
+end
+
 while true do
     local eventData = { os.pullEvent() }
     local event = eventData[1]
@@ -111,6 +128,8 @@ while true do
         handleTyping(eventData[2])
     elseif event == "key" then
         handleKeyPress(eventData[2])
+    elseif event == "turtle_inventory" then
+        handleTurtleInventory()
     end
     drawIndexScreen()
 end
