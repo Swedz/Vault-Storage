@@ -23,6 +23,10 @@ return {
             background = colors.gray,
             text = colors.white
         },
+        indexInfo = {
+            background = colors.black,
+            text = colors.yellow
+        },
         requestItems = {
             background = colors.gray,
             text = colors.white

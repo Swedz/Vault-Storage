@@ -22,7 +22,7 @@ windowIndexLabel = window.create(windowIndex, 1, 2, termWidth, 1)
 windowIndexLabel.setBackgroundColor(config.colors.indexHeader.background)
 windowIndexLabel.setTextColor(config.colors.indexHeader.text)
 
-windowIndexContent = window.create(windowIndex, 1, 3, termWidth, termHeight - 2)
+windowIndexContent = window.create(windowIndex, 1, 3, termWidth, termHeight - 3)
 windowIndexContent.setBackgroundColor(config.colors.indexContent.background)
 windowIndexContent.setTextColor(config.colors.indexContent.text)
 
@@ -30,15 +30,23 @@ windowIndexSelectedLine = window.create(windowIndexContent, 1, highlightedLine, 
 windowIndexSelectedLine.setBackgroundColor(config.colors.indexHighlightedEntry.background)
 windowIndexSelectedLine.setTextColor(config.colors.indexHighlightedEntry.text)
 
+windowIndexInfo = window.create(windowIndex, 1, termHeight, termWidth, 1)
+windowIndexInfo.setBackgroundColor(config.colors.indexInfo.background)
+windowIndexInfo.setTextColor(config.colors.indexInfo.text)
+
 maxEntryLines = nil
 totalEntriesDisplayed = nil
 function updateIndexTermSize()
-    maxEntryLines = termHeight - 2
+    maxEntryLines = termHeight - 3
 end
 updateIndexTermSize()
 
 function drawIndexScreen()
     local columnWidths = { termWidth * 0.75 - 1, termWidth * 0.25 - 1 }
+
+    windowIndexInfo.clear()
+    windowIndexInfo.setCursorPos(1, 1)
+    windowIndexInfo.write(("Items: %s / %s (%.2f%%)"):format(formatCount(cache.stats.items_current), formatCount(cache.stats.items_max), cache.stats.items_current / cache.stats.items_max * 100))
 
     windowIndexLabel.clear()
     windowIndexLabel.setCursorPos(1, 1)

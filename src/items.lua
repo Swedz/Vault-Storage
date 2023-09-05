@@ -14,6 +14,13 @@ function unhashItem(hash)
 end
 
 Cache = {
+    stats = {
+        inventory_count = 0,
+        slots_occupied = 0,
+        slots_total = 0,
+        items_current = 0,
+        items_max = 0
+    },
     inventories = {},
     containers = {},
     items = {}
@@ -39,6 +46,9 @@ function Cache:locateInventoryPeripherals()
     local inventories = {}
     local containers = {}
     for _, inventory in pairs(peripherals) do
+        self.stats.inventory_count = self.stats.inventory_count + 1
+        self.stats.slots_total = self.stats.slots_total + inventory.size()
+
         local inventoryName = peripheral.getName(inventory)
 
         inventories[inventoryName] = inventory
@@ -46,7 +56,10 @@ function Cache:locateInventoryPeripherals()
         local container = {}
         for slot, itemStack in pairs(inventory.list()) do
             container[slot] = itemStack
+            self.stats.slots_occupied = self.stats.slots_occupied + 1
+            self.stats.items_current = self.stats.items_current + itemStack.count
         end
+        self.stats.items_max = self.stats.items_max + (inventory.getItemLimit(1) * inventory.size())
         containers[inventoryName] = container
     end
     self.inventories = inventories
@@ -72,6 +85,7 @@ function Cache:insertItem(inventory, itemStack, slot, count)
                 [inventoryName] = { [slot] = true }
             }
         }
+        debug("Inserted new item " .. itemHash .. " at inventory " .. inventoryName)
     else
         item.count = item.count + count
         if slot > 0 then
@@ -139,20 +153,33 @@ function Cache:requestItems(targetInventory, item, amount)
 
         for slot, _ in pairs(slots) do
             -- Push the item from the inventory into the target inventory
-            local itemDetail = self.containers[sourceName][slot]
-            local amountPushed = inventory.pushItems(targetInventory, slot, amount)
+            local amountPushed = -1
+            while amountPushed ~= 0 do
+                local itemDetail = self.containers[sourceName][slot]
+                amountPushed = inventory.pushItems(targetInventory, slot, amount)
+                if amountPushed == 0 then
+                    break
+                end
 
-            -- Adjust our counts
-            amount = amount - amountPushed
-            item.count = item.count - amountPushed
-            self.containers[sourceName][slot].count = itemDetail.count - amountPushed
+                -- Adjust our counts
+                amount = amount - amountPushed
+                item.count = item.count - amountPushed
+                self.containers[sourceName][slot].count = itemDetail.count - amountPushed
+                self.stats.items_current = self.stats.items_current - amountPushed
 
-            -- Mark this slot for removal
-            if itemDetail.count <= amountPushed then
-                self.containers[sourceName][slot] = nil
-                table.insert(forgetSlots, slot)
+                -- Mark this slot for removal
+                if itemDetail.count <= amountPushed then
+                    self.containers[sourceName][slot] = nil
+                    self.stats.slots_occupied = self.stats.slots_occupied - 1
+                    table.insert(forgetSlots, slot)
+                    break
+                end
+
+                -- If we don't need to request any more items, let's stop looking
+                if amount <= 0 then
+                    break
+                end
             end
-
             -- If we don't need to request any more items, let's stop looking
             if amount <= 0 then
                 break
@@ -201,21 +228,19 @@ function Cache:depositItems(fromInventory, slot)
         local emptySlots = {}
         for s = 1, inventory.size() do emptySlots[s] = true end
         for s, _ in pairs(self.containers[peripheral.getName(inventory)]) do emptySlots[s] = false end
-        local firstEmptySlot = 0
-        for s, v in pairs(emptySlots) do if v then firstEmptySlot = s break end end
 
-        if firstEmptySlot > 0 then
-            local amountInserted = inventory.pullItems(fromInventory, slot, inventory.getItemLimit(firstEmptySlot), firstEmptySlot)
-            if amountInserted > 0 then
-                local filledSlot = -1
-                for s, i in pairs(inventory.list()) do
-                    self.containers[peripheral.getName(inventory)][s] = i
-                    if emptySlots[s] and filledSlot == -1 then
-                        filledSlot = s
-                    end
+        local amountInserted = inventory.pullItems(fromInventory, slot)
+        if amountInserted > 0 then
+            local filledSlot = -1
+            for s, i in pairs(inventory.list()) do
+                self.containers[peripheral.getName(inventory)][s] = i
+                if emptySlots[s] and filledSlot == -1 then
+                    filledSlot = s
+                    self.stats.slots_occupied = self.stats.slots_occupied + 1
                 end
-                self:insertItem(inventory, itemStack, filledSlot, amountInserted)
             end
+            self.stats.items_current = self.stats.items_current + amountInserted
+            self:insertItem(inventory, itemStack, filledSlot, amountInserted)
         end
     end
 end
