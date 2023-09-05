@@ -6,6 +6,12 @@ require("vault_core")
 computerName = peripheral.find("modem").getNameLocal()
 cache = require("vault_items"):fullSetup()
 
+internal_inventory_cache = {}
+internal_inventory = peripheral.wrap(computerName)
+for slot, item in pairs(internal_inventory.list()) do
+    debug(("%d: %s"):format(slot, item.name))
+end
+
 termWidth, termHeight = term.getSize()
 searchBox = ""
 
