@@ -22,7 +22,7 @@ function handleTurtleInventory()
         elseif not protected and item then
             table.insert(queue, function()
                 cache:depositItems(computerName, slot)
-                drawIndexScreen()
+                drawScreen()
             end)
         end
     end

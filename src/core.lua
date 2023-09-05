@@ -47,6 +47,16 @@ function findPeripheralsPattern(pattern)
     return peripherals
 end
 
+function findPeripheralsPatterns(patterns)
+    local peripherals = {}
+    for _, pattern in pairs(patterns) do
+        for _, p in ipairs(findPeripheralsPattern(pattern)) do
+            table.insert(peripherals, p)
+        end
+    end
+    return peripherals
+end
+
 partitionSize = 128
 function processQueue(queue)
     local data_functions = {}

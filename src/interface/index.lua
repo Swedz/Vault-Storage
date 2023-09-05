@@ -146,23 +146,35 @@ function handleIndexScreen()
         end
     end
 
+    startItemInserter()
+
     while screen == "index" do
-        local eventData = { os.pullEvent() }
-        local event = eventData[1]
-        if event == "vault.screen_changed" and eventData[2] ~= "index" then
-            break
-        elseif event == "char" then
-            handleTyping(eventData[2])
-        elseif event == "key" then
-            handleKeyPress(eventData[2])
-        elseif event == "turtle_inventory" then
-            handleTurtleInventory()
-        elseif event == "term_resize" then
-            updateTermSize()
-            updateIndexTermSize()
+        local function tickMain()
+            while screen == "index" do
+                local eventData = { os.pullEvent() }
+                local event = eventData[1]
+                if event == "vault.screen_changed" and eventData[2] ~= "index" then
+                    break
+                elseif event == "char" then
+                    handleTyping(eventData[2])
+                elseif event == "key" then
+                    handleKeyPress(eventData[2])
+                elseif event == "turtle_inventory" then
+                    handleTurtleInventory()
+                elseif event == "term_resize" then
+                    updateTermSize()
+                    updateIndexTermSize()
+                end
+                if screen == "index" then
+                    drawIndexScreen()
+                end
+            end
         end
-        if screen == "index" then
-            drawIndexScreen()
+
+        local function tickItemInserter()
+            handleTickItemInserter(function() return screen == "index" end)
         end
+
+        parallel.waitForAll(tickMain, tickItemInserter)
     end
 end

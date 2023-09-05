@@ -37,30 +37,29 @@ function Cache:locateInventoryPeripherals()
     if config.inventory_peripheral ~= nil then
         peripherals = { peripheral.find(config.inventory_peripheral) }
     end
-    for _, inventory in pairs(config.additional_inventory_peripherals) do
-        for _, p in ipairs(findPeripheralsPattern(inventory)) do
-            table.insert(peripherals, p)
-        end
+    for _, inventory in pairs(findPeripheralsPatterns(config.additional_inventory_peripherals)) do
+        table.insert(peripherals, inventory)
     end
 
     local inventories = {}
     local containers = {}
     for _, inventory in pairs(peripherals) do
-        self.stats.inventory_count = self.stats.inventory_count + 1
-        self.stats.slots_total = self.stats.slots_total + inventory.size()
-
         local inventoryName = peripheral.getName(inventory)
+        if not isItemInserter(inventoryName) then
+            self.stats.inventory_count = self.stats.inventory_count + 1
+            self.stats.slots_total = self.stats.slots_total + inventory.size()
 
-        inventories[inventoryName] = inventory
+            inventories[inventoryName] = inventory
 
-        local container = {}
-        for slot, itemStack in pairs(inventory.list()) do
-            container[slot] = itemStack
-            self.stats.slots_occupied = self.stats.slots_occupied + 1
-            self.stats.items_current = self.stats.items_current + itemStack.count
+            local container = {}
+            for slot, itemStack in pairs(inventory.list()) do
+                container[slot] = itemStack
+                self.stats.slots_occupied = self.stats.slots_occupied + 1
+                self.stats.items_current = self.stats.items_current + itemStack.count
+            end
+            self.stats.items_max = self.stats.items_max + (inventory.getItemLimit(1) * inventory.size())
+            containers[inventoryName] = container
         end
-        self.stats.items_max = self.stats.items_max + (inventory.getItemLimit(1) * inventory.size())
-        containers[inventoryName] = container
     end
     self.inventories = inventories
     self.containers = containers

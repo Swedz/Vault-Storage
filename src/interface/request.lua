@@ -79,23 +79,35 @@ function handleRequestScreen()
         end
     end
 
+    startItemInserter()
+
     while screen == "request" do
-        local eventData = { os.pullEvent() }
-        local event = eventData[1]
-        if event == "vault.screen_changed" and eventData[2] ~= "request" then
-            break
-        elseif event == "char" then
-            handleTyping(eventData[2])
-        elseif event == "key" then
-            handleKeyPress(eventData[2])
-        elseif event == "turtle_inventory" then
-            handleTurtleInventory()
-        elseif event == "term_resize" then
-            updateTermSize()
-            updateRequestTermSize()
+        local function tickMain()
+            while screen == "request" do
+                local eventData = { os.pullEvent() }
+                local event = eventData[1]
+                if event == "vault.screen_changed" and eventData[2] ~= "request" then
+                    break
+                elseif event == "char" then
+                    handleTyping(eventData[2])
+                elseif event == "key" then
+                    handleKeyPress(eventData[2])
+                elseif event == "turtle_inventory" then
+                    handleTurtleInventory()
+                elseif event == "term_resize" then
+                    updateTermSize()
+                    updateRequestTermSize()
+                end
+                if screen == "request" then
+                    drawRequestScreen()
+                end
+            end
         end
-        if screen == "request" then
-            drawRequestScreen()
+
+        local function tickItemInserter()
+            handleTickItemInserter(function() return screen == "request" end)
         end
+
+        parallel.waitForAll(tickMain, tickItemInserter)
     end
 end
