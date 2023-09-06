@@ -288,24 +288,6 @@ function Cache:depositItems(fromInventory, slot)
                 slotsReservedForDeposit[inventoryName][s] = nil
             end
         end
-
-        --[[local emptySlots = {}
-        for s = 1, inventory.size() do emptySlots[s] = true end
-        for s, _ in pairs(self.containers[peripheral.getName(inventory)]) do emptySlots[s] = false end
-
-        local amountInserted = inventory.pullItems(fromInventory, slot)
-        if amountInserted > 0 then
-            local filledSlot = -1
-            for s, i in pairs(inventory.list()) do
-                self.containers[peripheral.getName(inventory)][s] = i
-                if hashItem(i) == itemStackHash and emptySlots[s] and filledSlot == -1 then
-                    filledSlot = s
-                    self.stats.slots_occupied = self.stats.slots_occupied + 1
-                end
-            end
-            self.stats.items_current = self.stats.items_current + amountInserted
-            self:insertItem(inventory, itemStack, filledSlot, amountInserted)
-        end]]
     end
 end
 
