@@ -71,7 +71,7 @@ function drawIndexScreen()
         end
     end
     totalEntriesDisplayed = entriesDisplayed
-    if highlightedLine > totalEntriesDisplayed then
+    if highlightedLine > totalEntriesDisplayed and totalEntriesDisplayed > 0 then
         highlightedLine = totalEntriesDisplayed
         windowIndexSelectedLine.reposition(1, highlightedLine)
     end
