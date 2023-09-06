@@ -27,39 +27,47 @@ Cache = {
 }
 
 function Cache:fullSetup()
+    local start = os.epoch("utc")
     self:locateInventoryPeripherals()
-    self:readAll(self.inventories)
+    print("")
+    print(("* Located inventory peripherals in %dms."):format(os.epoch("utc") - start))
+
+    start = os.epoch("utc")
+    self:readAll()
+    print("")
+    print(("* Read all items in %dms."):format(os.epoch("utc") - start))
+
     return self
 end
 
 function Cache:locateInventoryPeripherals()
     local peripherals = {}
     if config.inventory_peripheral ~= nil then
-        peripherals = { peripheral.find(config.inventory_peripheral) }
+        peripherals = { peripheral.find(config.inventory_peripheral, function(peripheralName) return not depositorItemInserterIsInserter(peripheralName) end) }
     end
     for _, inventory in pairs(findInventoryPeripheralsPatterns(config.additional_inventory_peripherals)) do
-        table.insert(peripherals, inventory)
+        if not depositorItemInserterIsInserter(peripheral.getName(inventory)) then
+            table.insert(peripherals, inventory)
+        end
     end
 
     local inventories = {}
     local containers = {}
     for _, inventory in pairs(peripherals) do
         local inventoryName = peripheral.getName(inventory)
-        if not depositorItemInserterIsInserter(inventoryName) then
-            self.stats.inventory_count = self.stats.inventory_count + 1
-            self.stats.slots_total = self.stats.slots_total + inventory.size()
+        self.stats.inventory_count = self.stats.inventory_count + 1
+        self.stats.slots_total = self.stats.slots_total + inventory.size()
 
-            inventories[inventoryName] = inventory
+        inventories[inventoryName] = inventory
 
-            local container = {}
-            for slot, itemStack in pairs(inventory.list()) do
-                container[slot] = itemStack
-                self.stats.slots_occupied = self.stats.slots_occupied + 1
-                self.stats.items_current = self.stats.items_current + itemStack.count
-            end
-            self.stats.items_max = self.stats.items_max + (inventory.getItemLimit(1) * inventory.size())
-            containers[inventoryName] = container
+        local container = {}
+        for slot, itemStack in pairs(inventory.list()) do
+            container[slot] = itemStack
+            self.stats.slots_occupied = self.stats.slots_occupied + 1
+            self.stats.items_current = self.stats.items_current + itemStack.count
         end
+        self.stats.items_max = self.stats.items_max + (inventory.getItemLimit(1) * inventory.size())
+        containers[inventoryName] = container
     end
     self.inventories = inventories
     self.containers = containers
@@ -95,10 +103,10 @@ function Cache:insertItem(inventory, itemStack, slot, count)
     end
 end
 
-function Cache:readAll(inventories)
-    for _, inventory in pairs(inventories) do
-        for slot, itemStack in pairs(inventory.list()) do
-            self:insertItem(inventory, itemStack, slot, itemStack.count)
+function Cache:readAll()
+    for containerName, container in pairs(self.containers) do
+        for slot, itemStack in pairs(container) do
+            self:insertItem(self.inventories[containerName], itemStack, slot, itemStack.count)
         end
     end
 end
