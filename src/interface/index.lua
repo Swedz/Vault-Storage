@@ -102,10 +102,6 @@ function drawIndexScreen()
         end
     end
 
-    -- Used for writing debug information on the bottom of the screen
-    --windowIndexBottom.setCursorPos(1, termHeight - 4)
-    --windowIndexBottom.write(("%d & %s"):format(#matchingItems, #matchingItems > 0))
-
     windowIndexSearch.setCursorPos(1, 1)
     windowIndexSearch.clearLine()
     windowIndexSearch.write(searchBox)
