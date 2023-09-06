@@ -55,8 +55,10 @@ function handleRequestScreen()
     function handleKeyPressEnter()
         local amountToRequest = tonumber(requestBox)
         if amountToRequest ~= nil and amountToRequest > 0 then
+            depositorTurtleHalt = true
             cache:requestItems(computerName, cache.items[requestingItem], amountToRequest)
-            turtleProtectSlots()
+            depositorTurtleProtectSlots()
+            depositorTurtleHalt = false
         end
         requestingItem = nil
         requestBox = ""
@@ -79,7 +81,7 @@ function handleRequestScreen()
         end
     end
 
-    startItemInserter()
+    depositorStart()
 
     while screen == "request" do
         local function tickMain()
@@ -105,7 +107,7 @@ function handleRequestScreen()
         end
 
         local function tickItemInserter()
-            handleTickItemInserter(function() return screen == "request" end)
+            depositorRun(function() return screen == "request" end)
         end
 
         parallel.waitForAll(tickMain, tickItemInserter)

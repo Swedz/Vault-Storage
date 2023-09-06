@@ -162,7 +162,7 @@ function handleIndexScreen()
         handleScrollSelection(direction == -1)
     end
 
-    startItemInserter()
+    depositorStart()
 
     while screen == "index" do
         local function tickMain()
@@ -177,8 +177,6 @@ function handleIndexScreen()
                     handleKeyPress(eventData[2])
                 elseif event == "mouse_scroll" then
                     handleMouseScroll(eventData[2])
-                elseif event == "turtle_inventory" then
-                    handleTurtleInventory()
                 elseif event == "term_resize" then
                     updateTermSize()
                     updateIndexTermSize()
@@ -190,7 +188,7 @@ function handleIndexScreen()
         end
 
         local function tickItemInserter()
-            handleTickItemInserter(function() return screen == "index" end)
+            depositorRun(function() return screen == "index" end)
         end
 
         parallel.waitForAll(tickMain, tickItemInserter)

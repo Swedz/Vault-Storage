@@ -9,10 +9,9 @@ end
 updateTermSize()
 
 require("core")
-require("turtle_inventory")
-require("item_inserter")
+require("depositor")
 
-setupItemInserters()
+depositorSetup()
 
 screen = "index"
 computerName = peripheral.find("modem").getNameLocal()

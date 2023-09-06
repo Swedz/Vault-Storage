@@ -45,7 +45,7 @@ function Cache:locateInventoryPeripherals()
     local containers = {}
     for _, inventory in pairs(peripherals) do
         local inventoryName = peripheral.getName(inventory)
-        if not isItemInserter(inventoryName) then
+        if not depositorItemInserterIsInserter(inventoryName) then
             self.stats.inventory_count = self.stats.inventory_count + 1
             self.stats.slots_total = self.stats.slots_total + inventory.size()
 

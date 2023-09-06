@@ -7,12 +7,18 @@ return {
     additional_inventory_peripherals = {
         "sophisticatedstorage:.*"
     },
-    -- The item inserter inventory peripheral names to wrap and continually pull items from and insert into the system.
-    -- Inventories matching the item inserter patterns will not be registered as inventory peripherals.
-    -- Accepts Lua patterns (https://www.lua.org/pil/20.1.html)
-    item_inserters = {
-        "minecraft:chest.*",
-        "minecraft:barrel.*"
+    -- Depositors are inventories that will every X seconds be pulled from and inserted into the main system
+    depositors = {
+        -- The amount of seconds waited in between every deposit.
+        -- This will automatically be rounded up to the nearest multiple of 0.05, as it waits for a fixed amount of world ticks.
+        frequency = 0.25,
+        -- Array of patterns that will be used to find inventory peripherals to use as depositors.
+        -- Inventories matching the inserter patterns will not be registered as inventory peripherals.
+        -- Accepts Lua patterns (https://www.lua.org/pil/20.1.html)
+        inserters = {
+            "minecraft:chest.*",
+            "minecraft:barrel.*"
+        }
     },
     colors = {
         indexSearchBox = {
