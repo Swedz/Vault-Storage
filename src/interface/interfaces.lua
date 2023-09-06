@@ -8,17 +8,26 @@ Interfaces = {
     }
 }
 
+local function setScreenVisibility(screen, visibility)
+    if screen.windows ~= nil and screen.windows.main ~= nil then
+        screen.windows.main.setVisible(visibility)
+    end
+end
+
 function Interfaces:setScreen(screenName, args)
     if self.screens[screenName] == nil then
         error("Could not find registered screen for name '" .. screenName .. "'")
     end
 
     if self.current ~= nil then
-        self.screens[self.current]:close()
+        local screen = self.screens[self.current]
+        screen:close()
+        setScreenVisibility(screen, false)
     end
 
     self.current = screenName
     local screen = self.screens[screenName]
+    setScreenVisibility(screen, true)
     screen:open(args)
     screen:draw()
 

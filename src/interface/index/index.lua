@@ -7,6 +7,7 @@ local highlightedLine = 1
 local indexOffset = 0
 
 local windows = {}
+screen.windows = windows
 
 windows.main = window.create(term.current(), 1, 1, termWidth, termHeight, false)
 
@@ -39,11 +40,9 @@ local function getHighlightedItem()
 end
 
 function screen:open(_)
-    windows.main.setVisible(true)
 end
 
 function screen:close()
-    windows.main.setVisible(false)
 end
 
 function screen:draw()

@@ -7,6 +7,7 @@ local requestingItem
 local input = ""
 
 local windows = {}
+screen.windows = windows
 
 windows.main = window.create(term.current(), 1, 1, termWidth, termHeight, false)
 windows.main.setBackgroundColor(config.colors.requestItems.background)
@@ -19,11 +20,9 @@ windows.inputBox.setCursorBlink(true)
 
 function screen:open(args)
     requestingItem = args
-    windows.main.setVisible(true)
 end
 
 function screen:close()
-    windows.main.setVisible(false)
 end
 
 function screen:draw()
