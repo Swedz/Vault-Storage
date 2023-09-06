@@ -1,10 +1,11 @@
 searchBox = ""
 highlightedLine = 1
+indexOffset = 0
 
 function getHighlightedItem()
     local matchingItems = cache:getItems(true, searchBox)
     local nextIndex
-    if highlightedLine > 1 then nextIndex = highlightedLine - 1 end
+    if highlightedLine > 1 then nextIndex = highlightedLine - 1 + indexOffset end
     local selectedItem = matchingItems[next(matchingItems, nextIndex)]
     return selectedItem
 end
@@ -35,6 +36,7 @@ windowIndexInfo.setBackgroundColor(config.colors.indexInfo.background)
 windowIndexInfo.setTextColor(config.colors.indexInfo.text)
 
 maxEntryLines = nil
+totalEntries = nil
 totalEntriesDisplayed = nil
 function updateIndexTermSize()
     maxEntryLines = termHeight - 3
@@ -70,28 +72,34 @@ function drawIndexScreen()
             break
         end
     end
+    totalEntries = #matchingItems
     totalEntriesDisplayed = entriesDisplayed
     if highlightedLine > totalEntriesDisplayed and totalEntriesDisplayed > 0 then
         highlightedLine = totalEntriesDisplayed
         windowIndexSelectedLine.reposition(1, highlightedLine)
     end
+    if indexOffset > totalEntries - totalEntriesDisplayed then
+        indexOffset = totalEntries - totalEntriesDisplayed
+    end
 
     local line = 0
-    for _, item in ipairs(matchingItems) do
-        line = line + 1
-        if line > maxEntryLines then
-            break
-        end
+    for index, item in ipairs(matchingItems) do
+        if index > indexOffset then
+            line = line + 1
+            if line > maxEntryLines then
+                break
+            end
 
-        local localLine = line
-        local window = windowIndexContent
-        if line == highlightedLine then
-            localLine = 1
-            window = windowIndexSelectedLine
-        end
+            local localLine = line
+            local window = windowIndexContent
+            if line == highlightedLine then
+                localLine = 1
+                window = windowIndexSelectedLine
+            end
 
-        window.setCursorPos(1, localLine)
-        writeTableLine(window, { item.displayName, formatCount(item.count) }, columnWidths)
+            window.setCursorPos(1, localLine)
+            writeTableLine(window, { item.displayName, formatCount(item.count) }, columnWidths)
+        end
     end
 
     -- Used for writing debug information on the bottom of the screen
@@ -130,11 +138,15 @@ function handleIndexScreen()
             if highlightedLine > 1 then
                 highlightedLine = highlightedLine - 1
                 windowIndexSelectedLine.reposition(1, highlightedLine)
+            elseif highlightedLine == 1 and indexOffset > 0 then
+                indexOffset = indexOffset - 1
             end
         else
             if highlightedLine < totalEntriesDisplayed then
                 highlightedLine = highlightedLine + 1
                 windowIndexSelectedLine.reposition(1, highlightedLine)
+            elseif highlightedLine == totalEntriesDisplayed and indexOffset < totalEntries - totalEntriesDisplayed then
+                indexOffset = indexOffset + 1
             end
         end
     end
