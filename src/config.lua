@@ -1,5 +1,4 @@
 return {
-    debug = true,
     -- All peripherals of this type should be used as inventories. Use nil to use none
     inventory_peripheral = nil,
     -- Array of peripheral names that should be added to the peripheral list.
@@ -65,7 +64,8 @@ return {
                 text = colors.white
             },
             split = {
-                background = colors.white
+                background = colors.white,
+                text = colors.black
             }
         },
         manual = {
@@ -77,5 +77,8 @@ return {
                 background = colors.white
             }
         }
-    }
+    },
+    -- Developer only options. Do not touch these, unless you know what you're doing.
+    version = "1",
+    debug = true
 }

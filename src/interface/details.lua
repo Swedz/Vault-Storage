@@ -13,6 +13,7 @@ windows.body.setTextColor(config.colors.details.body.text)
 
 windows.split = window.create(windows.body, 1, 1, termWidth, 1)
 windows.split.setBackgroundColor(config.colors.details.split.background)
+windows.split.setTextColor(config.colors.details.split.text)
 
 function screen:open(_)
 end
@@ -22,9 +23,15 @@ end
 
 function screen:draw()
     windows.body.clear()
-    windows.split.clear()
 
-    -- TODO
+    windows.split.clear()
+    windows.split.setCursorPos(1, 1)
+    windows.split.write("Running Vault v" .. config.version)
+    if config.debug then
+        windows.split.setTextColor(colors.lightBlue)
+        windows.split.write(" (DEBUG MODE)")
+        windows.split.setTextColor(config.colors.details.split.text)
+    end
 end
 
 local function handleSwapTabs(left)
