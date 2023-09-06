@@ -2,9 +2,9 @@ Interfaces = {
     current = nil,
     screens = {
         index = require("../vault/interface/index/index"),
-        index_request = require("../vault/interface/index/request")
-        --details = require("../vault/interface/details")
-        --manual = require("../vault/interface/manual")
+        index_request = require("../vault/interface/index/request"),
+        details = require("../vault/interface/details"),
+        manual = require("../vault/interface/manual")
     }
 }
 

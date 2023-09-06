@@ -34,7 +34,11 @@ function interfaceutils.tabWindows(windowParent, selected)
             tab.setTextColor(config.colors.tabs.deselected.text)
         end
         tab.clearLine()
-        tab.setCursorPos(tabWidth / 2 - #label / 2 + 1, 1)
+        local labelXPadding = 1
+        if index == 3 then
+            labelXPadding = 2
+        end
+        tab.setCursorPos(tabWidth / 2 - #label / 2 + labelXPadding, 1)
         tab.write(label)
         return tab
     end

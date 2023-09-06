@@ -58,6 +58,24 @@ return {
                 background = colors.white,
                 text = colors.black
             }
+        },
+        details = {
+            body = {
+                background = colors.gray,
+                text = colors.white
+            },
+            split = {
+                background = colors.white
+            }
+        },
+        manual = {
+            body = {
+                background = colors.gray,
+                text = colors.white
+            },
+            split = {
+                background = colors.white
+            }
         }
     }
 }
