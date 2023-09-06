@@ -14,23 +14,23 @@ windows.main = window.create(term.current(), 1, 1, termWidth, termHeight, false)
 windows.tabs, windows.tabIndex, windows.tabDetails, windows.tabManual = interfaceutils.tabWindows(windows.main, "index")
 
 windows.search = window.create(windows.main, 1, 2, termWidth, 1)
-windows.search.setBackgroundColor(config.colors.indexSearchBox.background)
-windows.search.setTextColor(config.colors.indexSearchBox.text)
+windows.search.setBackgroundColor(config.colors.index.search.background)
+windows.search.setTextColor(config.colors.index.search.text)
 windows.search.clear()
 windows.search.setCursorPos(1, 1)
 windows.search.setCursorBlink(true)
 
 windows.header = window.create(windows.main, 1, 3, termWidth, 1)
-windows.header.setBackgroundColor(config.colors.indexHeader.background)
-windows.header.setTextColor(config.colors.indexHeader.text)
+windows.header.setBackgroundColor(config.colors.index.header.background)
+windows.header.setTextColor(config.colors.index.header.text)
 
 windows.content = window.create(windows.main, 1, 4, termWidth, termHeight - 3)
-windows.content.setBackgroundColor(config.colors.indexContent.background)
-windows.content.setTextColor(config.colors.indexContent.text)
+windows.content.setBackgroundColor(config.colors.index.content.background)
+windows.content.setTextColor(config.colors.index.content.text)
 
-windows.contentSelected = window.create(windows.content, 1, highlightedLine, termWidth, 1)
-windows.contentSelected.setBackgroundColor(config.colors.indexHighlightedEntry.background)
-windows.contentSelected.setTextColor(config.colors.indexHighlightedEntry.text)
+windows.highlightedEntry = window.create(windows.content, 1, highlightedLine, termWidth, 1)
+windows.highlightedEntry.setBackgroundColor(config.colors.index.highlightedEntry.background)
+windows.highlightedEntry.setTextColor(config.colors.index.highlightedEntry.text)
 
 local function getHighlightedItem()
     local matchingItems = cache:getItems(true, searchBox)
@@ -55,15 +55,15 @@ function screen:draw()
     windows.header.clear()
     windows.header.setCursorPos(1, 1)
     interfaceutils.writeTableLine(windows.header, { "Item", "Count" }, columnWidths)
-    windows.contentSelected.clear()
+    windows.highlightedEntry.clear()
     windows.content.clear()
 
     local matchingItems = cache:getItems(true, searchBox)
 
     if #matchingItems == 0 then
-        windows.contentSelected.setBackgroundColor(config.colors.indexContent.background)
+        windows.highlightedEntry.setBackgroundColor(config.colors.index.content.background)
     else
-        windows.contentSelected.setBackgroundColor(config.colors.indexHighlightedEntry.background)
+        windows.highlightedEntry.setBackgroundColor(config.colors.index.highlightedEntry.background)
     end
 
     local entriesDisplayed = 0
@@ -78,7 +78,7 @@ function screen:draw()
     totalEntriesDisplayed = entriesDisplayed
     if highlightedLine > totalEntriesDisplayed and totalEntriesDisplayed > 0 then
         highlightedLine = totalEntriesDisplayed
-        windows.contentSelected.reposition(1, highlightedLine)
+        windows.highlightedEntry.reposition(1, highlightedLine)
     end
     if indexOffset > totalEntries - totalEntriesDisplayed then
         indexOffset = totalEntries - totalEntriesDisplayed
@@ -96,7 +96,7 @@ function screen:draw()
             local window = windows.content
             if line == highlightedLine then
                 localLine = 1
-                window = windows.contentSelected
+                window = windows.highlightedEntry
             end
 
             window.setCursorPos(1, localLine)
@@ -135,14 +135,14 @@ local function handleScrollSelection(up)
     if up then
         if highlightedLine > 1 then
             highlightedLine = highlightedLine - 1
-            windows.contentSelected.reposition(1, highlightedLine)
+            windows.highlightedEntry.reposition(1, highlightedLine)
         elseif highlightedLine == 1 and indexOffset > 0 then
             indexOffset = indexOffset - 1
         end
     else
         if highlightedLine < totalEntriesDisplayed then
             highlightedLine = highlightedLine + 1
-            windows.contentSelected.reposition(1, highlightedLine)
+            windows.highlightedEntry.reposition(1, highlightedLine)
         elseif highlightedLine == totalEntriesDisplayed and indexOffset < totalEntries - totalEntriesDisplayed then
             indexOffset = indexOffset + 1
         end

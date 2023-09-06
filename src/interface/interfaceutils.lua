@@ -27,11 +27,11 @@ function interfaceutils.tabWindows(windowParent, selected)
     local function createTab(index, id, label)
         local tab = window.create(tabs, ((index - 1) * tabWidth) + 1, 1, tabWidth, 1)
         if selected == id then
-            tab.setBackgroundColor(colors.white)
-            tab.setTextColor(colors.lightGray)
+            tab.setBackgroundColor(config.colors.tabs.selected.background)
+            tab.setTextColor(config.colors.tabs.selected.text)
         else
-            tab.setBackgroundColor(colors.gray)
-            tab.setTextColor(colors.white)
+            tab.setBackgroundColor(config.colors.tabs.deselected.background)
+            tab.setTextColor(config.colors.tabs.deselected.text)
         end
         tab.clearLine()
         tab.setCursorPos(tabWidth / 2 - #label / 2 + 1, 1)

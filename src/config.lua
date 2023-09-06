@@ -21,33 +21,43 @@ return {
         }
     },
     colors = {
-        indexSearchBox = {
-            background = colors.white,
-            text = colors.black
+        tabs = {
+            selected = {
+                background = colors.white,
+                text = colors.lightGray
+            },
+            deselected = {
+                background = colors.gray,
+                text = colors.white
+            }
         },
-        indexHeader = {
-            background = colors.lightGray,
-            text = colors.white
+        index = {
+            search = {
+                background = colors.white,
+                text = colors.black
+            },
+            header = {
+                background = colors.lightGray,
+                text = colors.white
+            },
+            highlightedEntry = {
+                background = colors.lightGray,
+                text = colors.white
+            },
+            content = {
+                background = colors.gray,
+                text = colors.white
+            }
         },
-        indexHighlightedEntry = {
-            background = colors.lightGray,
-            text = colors.white
-        },
-        indexContent = {
-            background = colors.gray,
-            text = colors.white
-        },
-        indexInfo = {
-            background = colors.black,
-            text = colors.yellow
-        },
-        requestItems = {
-            background = colors.gray,
-            text = colors.white
-        },
-        requestItemsAmount = {
-            background = colors.white,
-            text = colors.black
+        index_request = {
+            body = {
+                background = colors.gray,
+                text = colors.white
+            },
+            input = {
+                background = colors.white,
+                text = colors.black
+            }
         }
     }
 }
