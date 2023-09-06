@@ -11,10 +11,9 @@ function updateTermSize()
 end
 updateTermSize()
 
+config = require("config")
 require("core")
-require("depositor")
-
-depositorSetup()
+depositor = require("depositor"):setup()
 
 screen = "index"
 computerName = peripheral.find("modem").getNameLocal()
@@ -31,29 +30,7 @@ if config.debug then
 end
 term.clear()
 
-require("interface/index")
-require("interface/request")
+interfaceutils = require("interface/interfaceutils")
+interfaces = require("interface/interfaces")
 
-function drawScreen()
-    if screen == "index" then
-        drawIndexScreen()
-    elseif screen == "request" then
-        drawRequestScreen()
-    end
-end
-
-function setScreen(targetScreen)
-    screen = targetScreen
-    if targetScreen == "index" then
-        windowIndex.setVisible(true)
-        windowRequest.setVisible(false)
-        handleIndexScreen()
-    elseif targetScreen == "request" then
-        windowIndex.setVisible(false)
-        windowRequest.setVisible(true)
-        handleRequestScreen()
-    end
-    os.queueEvent("vault.screen_changed", targetScreen)
-end
-
-setScreen("index")
+interfaces:setScreen("index")

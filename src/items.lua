@@ -43,10 +43,10 @@ end
 function Cache:locateInventoryPeripherals()
     local peripherals = {}
     if config.inventory_peripheral ~= nil then
-        peripherals = { peripheral.find(config.inventory_peripheral, function(peripheralName) return not depositorItemInserterIsInserter(peripheralName) end) }
+        peripherals = { peripheral.find(config.inventory_peripheral, function(peripheralName) return not depositor:isItemInserter(peripheralName) end) }
     end
     for _, inventory in pairs(findInventoryPeripheralsPatterns(config.additional_inventory_peripherals)) do
-        if not depositorItemInserterIsInserter(peripheral.getName(inventory)) then
+        if not depositor:isItemInserter(peripheral.getName(inventory)) then
             table.insert(peripherals, inventory)
         end
     end

@@ -1,70 +1,72 @@
-depositorTimer = nil
-depositorItemInserters = nil
-depositorTurtleProtectedSlots = {}
-depositorTurtleHalt = false
+local depositor = {
+    timer = nil,
+    itemInserters = nil,
+    turtle = {
+        protectedSlots = {},
+        halt = false
+    }
+}
 
-function depositorSetup()
-    depositorTurtleProtectSlots()
-    depositorItemInserterSetup()
+function depositor:setup()
+    self:turtleProtectSlots()
+    self:itemInserterSetup()
+    return self
 end
 
-function depositorStart()
-    if depositorTimer ~= nil then
-        os.cancelTimer(depositorTimer)
+function depositor:start()
+    if self.timer ~= nil then
+        os.cancelTimer(self.timer)
     end
-    depositorTimer = os.startTimer(config.depositors.frequency)
+    self.timer = os.startTimer(config.depositors.frequency)
 end
 
-function depositorRun(condition)
+function depositor:run(condition)
     while condition() do
         local _, timer = os.pullEvent("timer")
-        if timer == depositorTimer then
-            depositorHandle()
-            depositorTimer = os.startTimer(config.depositors.frequency)
+        if timer == self.timer then
+            local queue = {}
+            if self.itemInserters ~= nil then
+                self:itemInserterHandle(queue)
+            end
+            if not self.turtle.halt then
+                self:turtleHandle(queue)
+            end
+            processQueue(queue)
+
+            self.timer = os.startTimer(config.depositors.frequency)
         end
     end
 end
 
-function depositorHandle()
-    local queue = {}
-    if depositorItemInserters ~= nil then
-        depositorItemInserterHandle(queue)
-    end
-    if not depositorTurtleHalt then
-        depositorTurtleHandle(queue)
-    end
-    processQueue(queue)
-end
-
-function depositorTurtleProtectSlots()
+function depositor:turtleProtectSlots()
     for slot = 1, 16 do
         if turtle.getItemDetail(slot) then
-            depositorTurtleProtectedSlots[slot] = true
+            self.turtle.protectedSlots[slot] = true
         else
-            depositorTurtleProtectedSlots[slot] = false
+            self.turtle.protectedSlots[slot] = false
         end
     end
 end
 
-function depositorTurtleHandle(queue)
-    for slot, protected in pairs(depositorTurtleProtectedSlots) do
+function depositor:turtleHandle(queue)
+    for slot, protected in pairs(self.turtle.protectedSlots) do
         local item
         if turtle.getItemCount(slot) > 0 then
             item = turtle.getItemDetail(slot, true)
         end
         if protected and not item then
-            depositorTurtleProtectedSlots[slot] = false
+            self.turtle.protectedSlots[slot] = false
         elseif not protected and item then
             cache:initItemFromStack(item)
             table.insert(queue, function()
                 cache:depositItems(computerName, slot)
-                drawScreen()
+                interfaces:forceDrawScreen()
             end)
         end
     end
 end
 
-function depositorItemInserterIsInserter(peripheralName)
+function depositor:isItemInserter(peripheralName)
     for _, pattern in pairs(config.depositors.inserters) do
         if peripheralName:match(pattern) then
             return true
@@ -73,24 +75,26 @@ function depositorItemInserterIsInserter(peripheralName)
     return false
 end
 
-function depositorItemInserterSetup()
+function depositor:itemInserterSetup()
     local inserters = findInventoryPeripheralsPatterns(config.depositors.inserters)
     if #inserters > 0 then
-        depositorItemInserters = {}
+        self.itemInserters = {}
         for _, itemInserter in pairs(inserters) do
-            depositorItemInserters[peripheral.getName(itemInserter)] = itemInserter
+            self.itemInserters[peripheral.getName(itemInserter)] = itemInserter
         end
     end
 end
 
-function depositorItemInserterHandle(queue)
-    for peripheralName, itemInserter in pairs(depositorItemInserters) do
+function depositor:itemInserterHandle(queue)
+    for peripheralName, itemInserter in pairs(self.itemInserters) do
         for slot, itemStack in pairs(itemInserter.list()) do
             cache:initItemFromInventory(itemInserter, slot, itemStack)
             table.insert(queue, function()
                 cache:depositItems(peripheralName, slot)
-                drawScreen()
+                interfaces:forceDrawScreen()
             end)
         end
     end
 end
+
+return depositor
