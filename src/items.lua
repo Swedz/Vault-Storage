@@ -237,6 +237,8 @@ function Cache:requestItems(targetInventory, item, amount)
     end
 end
 
+local slotsReservedForDeposit = {}
+
 function Cache:depositItems(fromInventory, slot)
     local itemStack
     if fromInventory == computerName then
@@ -244,9 +246,50 @@ function Cache:depositItems(fromInventory, slot)
     else
         itemStack = peripheral.wrap(fromInventory).getItemDetail(slot)
     end
+    if itemStack == nil then
+        return
+    end
+    local itemStackCount = itemStack.count
+    local itemStackHash = hashItem(itemStack)
 
+    local accumulatedInsertedAmount = 0
     for _, inventory in pairs(self.inventories) do
-        local emptySlots = {}
+        local inventoryName = peripheral.getName(inventory)
+        if slotsReservedForDeposit[inventoryName] == nil then
+            slotsReservedForDeposit[inventoryName] = {}
+        end
+        local stackLimit = inventory.getItemLimit(1)
+        local inventoryItems = inventory.list()
+        for s = 1, inventory.size() do
+            if slotsReservedForDeposit[inventoryName][s] == nil or slotsReservedForDeposit[inventoryName][s] == itemStackHash then
+                slotsReservedForDeposit[inventoryName][s] = itemStackHash
+                local i = inventoryItems[s]
+                if i == nil or (hashItem(i) == itemStackHash and i.count < stackLimit) then
+                    local pullLimit = stackLimit
+                    if i ~= nil then
+                        pullLimit = pullLimit - i.count
+                    end
+                    local amountInserted = inventory.pullItems(fromInventory, slot, pullLimit, s)
+                    if amountInserted > 0 then
+                        if i == nil then
+                            self.stats.slots_occupied = self.stats.slots_occupied + 1
+                        end
+                        self.containers[inventoryName][s] = inventory.getItemDetail(s)
+                        self.stats.items_current = self.stats.items_current + amountInserted
+                        self:insertItem(inventory, itemStack, s, amountInserted)
+
+                        accumulatedInsertedAmount = accumulatedInsertedAmount + amountInserted
+                        if accumulatedInsertedAmount >= itemStackCount then
+                            slotsReservedForDeposit[inventoryName][s] = nil
+                            return
+                        end
+                    end
+                end
+                slotsReservedForDeposit[inventoryName][s] = nil
+            end
+        end
+
+        --[[local emptySlots = {}
         for s = 1, inventory.size() do emptySlots[s] = true end
         for s, _ in pairs(self.containers[peripheral.getName(inventory)]) do emptySlots[s] = false end
 
@@ -255,14 +298,14 @@ function Cache:depositItems(fromInventory, slot)
             local filledSlot = -1
             for s, i in pairs(inventory.list()) do
                 self.containers[peripheral.getName(inventory)][s] = i
-                if emptySlots[s] and filledSlot == -1 then
+                if hashItem(i) == itemStackHash and emptySlots[s] and filledSlot == -1 then
                     filledSlot = s
                     self.stats.slots_occupied = self.stats.slots_occupied + 1
                 end
             end
             self.stats.items_current = self.stats.items_current + amountInserted
             self:insertItem(inventory, itemStack, filledSlot, amountInserted)
-        end
+        end]]
     end
 end
 
