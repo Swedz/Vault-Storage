@@ -65,7 +65,7 @@ function handleRequestScreen()
         setScreen("index")
     end
 
-    function handleKeyPressEscape()
+    function handleKeyPressDelete()
         requestingItem = nil
         requestBox = ""
         setScreen("index")
@@ -74,10 +74,10 @@ function handleRequestScreen()
     function handleKeyPress(key)
         if key == keys.backspace then
             handleKeyPressBackspace()
-        elseif key == keys.enter then
+        elseif key == keys.enter or key == keys.numPadEnter then
             handleKeyPressEnter()
-        elseif key == keys.escape then
-            handleKeyPressEscape()
+        elseif key == keys.delete then
+            handleKeyPressDelete()
         end
     end
 

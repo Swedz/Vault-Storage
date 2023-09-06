@@ -129,6 +129,10 @@ function handleIndexScreen()
         end
     end
 
+    function handleKeyPressDelete()
+        searchBox = ""
+    end
+
     function handleScrollSelection(up)
         if up then
             if highlightedLine > 1 then
@@ -157,8 +161,10 @@ function handleIndexScreen()
     function handleKeyPress(key)
         if key == keys.backspace then
             handleKeyPressBackspace()
-        elseif key == keys.enter then
+        elseif key == keys.enter or key == keys.numPadEnter then
             handleKeyPressEnter()
+        elseif key == keys.delete then
+            handleKeyPressDelete()
         elseif key == keys.up or key == keys.down then
             handleScrollSelection(key == keys.up)
         elseif key == keys.leftCtrl and config.debug then
