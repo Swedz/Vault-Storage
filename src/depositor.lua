@@ -48,10 +48,14 @@ end
 
 function depositorTurtleHandle(queue)
     for slot, protected in pairs(depositorTurtleProtectedSlots) do
-        local item = turtle.getItemDetail(slot)
+        local item
+        if turtle.getItemCount(slot) > 0 then
+            item = turtle.getItemDetail(slot, true)
+        end
         if protected and not item then
             depositorTurtleProtectedSlots[slot] = false
         elseif not protected and item then
+            cache:initItemFromStack(item)
             table.insert(queue, function()
                 cache:depositItems(computerName, slot)
                 drawScreen()
@@ -81,7 +85,8 @@ end
 
 function depositorItemInserterHandle(queue)
     for peripheralName, itemInserter in pairs(depositorItemInserters) do
-        for slot, _ in pairs(itemInserter.list()) do
+        for slot, itemStack in pairs(itemInserter.list()) do
+            cache:initItemFromInventory(itemInserter, slot, itemStack)
             table.insert(queue, function()
                 cache:depositItems(peripheralName, slot)
                 drawScreen()

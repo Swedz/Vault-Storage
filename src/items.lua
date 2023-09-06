@@ -73,6 +73,30 @@ function Cache:locateInventoryPeripherals()
     self.containers = containers
 end
 
+function Cache:initItemFromStack(itemStack)
+    local itemHash = hashItem(itemStack)
+    if self.items[itemHash] == nil then
+        self.items[itemHash] = {
+            hash = itemHash,
+            count = 0,
+            displayName = itemStack.displayName,
+            sources = {}
+        }
+    end
+end
+
+function Cache:initItemFromInventory(inventory, slot, itemStack)
+    local itemHash = hashItem(itemStack)
+    if self.items[itemHash] == nil then
+        self.items[itemHash] = {
+            hash = itemHash,
+            count = 0,
+            displayName = inventory.getItemDetail(slot).displayName,
+            sources = {}
+        }
+    end
+end
+
 function Cache:insertItem(inventory, itemStack, slot, count)
     if count == nil then count = itemStack.count end
 
@@ -81,17 +105,7 @@ function Cache:insertItem(inventory, itemStack, slot, count)
     local itemHash = hashItem(itemStack)
     local item = self.items[itemHash]
     if item == nil then
-        if slot <= 0 then
-            error("Tried to insert new and fresh item with evaluated invalid slot of " .. slot)
-        end
-        self.items[itemHash] = {
-            hash = itemHash,
-            count = count,
-            displayName = inventory.getItemDetail(slot).displayName,
-            sources = {
-                [inventoryName] = { [slot] = true }
-            }
-        }
+        error("Tried to insert item without first initializing it")
     else
         item.count = item.count + count
         if slot > 0 then
@@ -106,6 +120,7 @@ end
 function Cache:readAll()
     for containerName, container in pairs(self.containers) do
         for slot, itemStack in pairs(container) do
+            self:initItemFromInventory(self.inventories[containerName], slot, itemStack)
             self:insertItem(self.inventories[containerName], itemStack, slot, itemStack.count)
         end
     end
@@ -134,7 +149,7 @@ function Cache:getItems(sort, filter)
     local result = {}
     local index = 1
     for _, item in pairs(self.items) do
-        if filter == nil or filter == "" or string.find(string.lower(item.displayName), filter) and item ~= nil then
+        if item ~= nil and item.count > 0 and (filter == nil or filter == "" or string.find(string.lower(item.displayName), filter)) then
             result[index] = item
             index = index + 1
         end
@@ -174,7 +189,7 @@ function Cache:requestItems(targetInventory, item, amount)
                 self.stats.items_current = self.stats.items_current - amountPushed
 
                 -- Mark this slot for removal
-                if itemDetail.count <= amountPushed then
+                if itemDetail.count <= 0 then
                     self.containers[sourceName][slot] = nil
                     self.stats.slots_occupied = self.stats.slots_occupied - 1
                     table.insert(forgetSlots, slot)
