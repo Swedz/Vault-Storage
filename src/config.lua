@@ -71,10 +71,15 @@ return {
         manual = {
             body = {
                 background = colors.gray,
-                text = colors.white
+                text = {
+                    plain = colors.white,
+                    faded = colors.lightGray,
+                    highlighted = colors.yellow
+                }
             },
             split = {
-                background = colors.white
+                background = colors.white,
+                text = colors.black
             }
         }
     },

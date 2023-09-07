@@ -46,4 +46,34 @@ function interfaceutils.tabWindows(windowParent, selected)
     return tabs, createTab(1, "index", "Index"), createTab(2, "details", "Details"), createTab(3, "manual", "Manual")
 end
 
+function interfaceutils.writeWrap(window, line, text)
+    local windowWidth, _ = window.getSize()
+
+    local lines = {}
+    local currentLineText
+    for word in string.gmatch(text, "[^%s]+") do
+        local currentLineTextLocal = currentLineText
+        if currentLineTextLocal == nil then currentLineTextLocal = word else currentLineTextLocal = currentLineTextLocal .. " " .. word end
+        if #currentLineTextLocal == windowWidth then
+            table.insert(lines, currentLineTextLocal)
+            currentLineText = nil
+        elseif #currentLineTextLocal > windowWidth then
+            table.insert(lines, currentLineText)
+            currentLineText = word
+        else
+            currentLineText = currentLineTextLocal
+        end
+    end
+    if currentLineText ~= nil then
+        table.insert(lines, currentLineText)
+    end
+
+    for i, lineText in ipairs(lines) do
+        window.setCursorPos(1, line + i - 1)
+        window.write(lineText)
+    end
+
+    return #lines
+end
+
 return interfaceutils
