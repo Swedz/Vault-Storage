@@ -59,17 +59,20 @@ function screen:draw()
         drawPartialBar(line, label, ("%s / %s [%.2f%%]"):format(formatCount(part), formatCount(total), fraction * 100), fraction)
     end
 
+    local function drawNumericalValue(line, label, value)
+        windows.body.setCursorPos(1, line)
+        windows.body.setTextColor(config.colors.details.body.text.highlighted)
+        windows.body.write(label)
+        windows.body.setTextColor(config.colors.details.body.text.faded)
+        windows.body.write(" \183 ")
+        windows.body.setTextColor(config.colors.details.body.text.plain)
+        windows.body.write(value)
+    end
+
     drawPartialBarShorthand(2, "Items", cache.stats.items_current, cache.stats.items_max)
     drawPartialBarShorthand(5, "Slots", cache.stats.slots_occupied, cache.stats.slots_total)
-
-    windows.body.setCursorPos(1, 8)
-    windows.body.setTextColor(config.colors.details.body.text.highlighted)
-    windows.body.write("Attached Inventories")
-    windows.body.setTextColor(config.colors.details.body.text.faded)
-    windows.body.write(" \183 ")
-    windows.body.setTextColor(config.colors.details.body.text.plain)
-    windows.body.write(formatCount(cache.stats.inventory_count))
-
+    drawNumericalValue(8, "Attached Inventories", formatCount(cache.stats.inventory_count))
+    drawNumericalValue(9, "Depositors          ", formatCount(#depositor.itemInserters))
 end
 
 local function handleSwapTabs(left)
