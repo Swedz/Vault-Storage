@@ -95,5 +95,5 @@ return {
     },
     -- Developer only options. Do not touch these, unless you know what you're doing.
     version = "1",
-    debug = true
+    debug = false
 }
