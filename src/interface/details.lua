@@ -72,7 +72,9 @@ function screen:draw()
     drawPartialBarShorthand(2, "Items", cache.stats.items_current, cache.stats.items_max)
     drawPartialBarShorthand(5, "Slots", cache.stats.slots_occupied, cache.stats.slots_total)
     drawNumericalValue(8, "Attached Inventories", formatCount(cache.stats.inventory_count))
-    drawNumericalValue(9, "Depositors          ", formatCount(#depositor.itemInserters))
+    local depositorCount = 0
+    if depositor.itemInserters ~= nil then for _ in pairs(depositor.itemInserters) do depositorCount = depositorCount + 1 end end
+    drawNumericalValue(9, "Depositors          ", formatCount(depositorCount))
 end
 
 local function handleSwapTabs(left)
