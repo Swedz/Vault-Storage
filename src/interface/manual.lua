@@ -93,12 +93,10 @@ local function handleScrollSelection(up)
     if up then
         if scroll > 0 then
             scroll = scroll - 1
-            windows.body.scroll(-1)
         end
     else
         if scroll < totalLines - linesDisplayed - 1 then
             scroll = scroll + 1
-            windows.body.scroll(1)
         end
     end
 end
