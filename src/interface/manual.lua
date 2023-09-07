@@ -20,6 +20,7 @@ windows.body.setBackgroundColor(config.colors.manual.body.background)
 windows.body.setTextColor(config.colors.manual.body.text.plain)
 
 function screen:open(_)
+    scroll = 0
 end
 
 function screen:close()
