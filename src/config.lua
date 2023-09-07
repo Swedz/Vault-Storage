@@ -61,7 +61,17 @@ return {
         details = {
             body = {
                 background = colors.gray,
-                text = colors.white
+                text = {
+                    plain = colors.white,
+                    faded = colors.lightGray,
+                    highlighted = colors.yellow,
+                    fractional = {
+                        low = colors.lime,
+                        medium = colors.yellow,
+                        high = colors.orange,
+                        full = colors.red
+                    }
+                }
             },
             split = {
                 background = colors.white,
