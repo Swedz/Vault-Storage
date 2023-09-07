@@ -48,10 +48,6 @@ end
 function screen:draw()
     local columnWidths = { termWidth * 0.75 - 1, termWidth * 0.25 - 1 }
 
-    --windowIndexInfo.clear()
-    --windowIndexInfo.setCursorPos(1, 1)
-    --windowIndexInfo.write(("Items: %s / %s (%.2f%%)"):format(formatCount(cache.stats.items_current), formatCount(cache.stats.items_max), cache.stats.items_current / cache.stats.items_max * 100))
-
     windows.header.clear()
     windows.header.setCursorPos(1, 1)
     interfaceutils.writeTableLine(windows.header, { "Item", "Count" }, columnWidths)
