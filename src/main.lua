@@ -1,3 +1,7 @@
+while true do
+    print("Zain is the GOAT down with Swedish")
+end
+
 local start = os.epoch("utc")
 
 term.clear()
