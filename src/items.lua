@@ -258,34 +258,36 @@ function Cache:depositItems(fromInventory, slot)
         if slotsReservedForDeposit[inventoryName] == nil then
             slotsReservedForDeposit[inventoryName] = {}
         end
-        local stackLimit = inventory.getItemLimit(1)
-        local inventoryItems = inventory.list()
-        for s = 1, inventory.size() do
-            if slotsReservedForDeposit[inventoryName][s] == nil or slotsReservedForDeposit[inventoryName][s] == itemStackHash then
-                slotsReservedForDeposit[inventoryName][s] = itemStackHash
-                local i = inventoryItems[s]
-                if i == nil or (hashItem(i) == itemStackHash and i.count < stackLimit) then
-                    local pullLimit = stackLimit
-                    if i ~= nil then
-                        pullLimit = pullLimit - i.count
-                    end
-                    local amountInserted = inventory.pullItems(fromInventory, slot, pullLimit, s)
-                    if amountInserted > 0 then
-                        if i == nil then
-                            self.stats.slots_occupied = self.stats.slots_occupied + 1
+        if type(inventory.size()) == "number" then
+            local stackLimit = inventory.getItemLimit(1)
+            local inventoryItems = inventory.list()
+            for s = 1, inventory.size() do
+                if slotsReservedForDeposit[inventoryName][s] == nil or slotsReservedForDeposit[inventoryName][s] == itemStackHash then
+                    slotsReservedForDeposit[inventoryName][s] = itemStackHash
+                    local i = inventoryItems[s]
+                    if i == nil or (hashItem(i) == itemStackHash and i.count < stackLimit) then
+                        local pullLimit = stackLimit
+                        if i ~= nil then
+                            pullLimit = pullLimit - i.count
                         end
-                        self.containers[inventoryName][s] = inventory.getItemDetail(s)
-                        self.stats.items_current = self.stats.items_current + amountInserted
-                        self:insertItem(inventory, itemStack, s, amountInserted)
+                        local amountInserted = inventory.pullItems(fromInventory, slot, pullLimit, s)
+                        if amountInserted > 0 then
+                            if i == nil then
+                                self.stats.slots_occupied = self.stats.slots_occupied + 1
+                            end
+                            self.containers[inventoryName][s] = inventory.getItemDetail(s)
+                            self.stats.items_current = self.stats.items_current + amountInserted
+                            self:insertItem(inventory, itemStack, s, amountInserted)
 
-                        accumulatedInsertedAmount = accumulatedInsertedAmount + amountInserted
-                        if accumulatedInsertedAmount >= itemStackCount then
-                            slotsReservedForDeposit[inventoryName][s] = nil
-                            return
+                            accumulatedInsertedAmount = accumulatedInsertedAmount + amountInserted
+                            if accumulatedInsertedAmount >= itemStackCount then
+                                slotsReservedForDeposit[inventoryName][s] = nil
+                                return
+                            end
                         end
                     end
+                    slotsReservedForDeposit[inventoryName][s] = nil
                 end
-                slotsReservedForDeposit[inventoryName][s] = nil
             end
         end
     end
